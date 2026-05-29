@@ -85,20 +85,23 @@ export default function Home() {
     const storedUser = localStorage.getItem("admin_user");
     if (storedToken) {
       setToken(storedToken);
-    }
-    if (storedUser) {
-      setCurrentUser(JSON.parse(storedUser));
+      setCurrentUser(storedUser ? JSON.parse(storedUser) : null);
     }
   }, []);
 
   useEffect(() => {
-    void loadPublicData();
-  }, []);
-
-  useEffect(() => {
-    if (token) {
-      void loadBookings();
-    }
+    const initializeApp = async () => {
+      setIsLoading(true);
+      try {
+        await loadPublicData();
+        if (token) {
+          await loadBookings();
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    void initializeApp();
   }, [token]);
 
   const filteredServices = useMemo(() => {
@@ -134,8 +137,10 @@ export default function Home() {
     try {
       const res = await api.get<Booking[]>("/api/bookings");
       setBookings(res.data);
+      setError(null);
     } catch (requestError) {
-      console.error(requestError);
+      console.error("Failed to load bookings:", requestError);
+      setBookings([]);
     }
   }
 
@@ -156,6 +161,9 @@ export default function Home() {
       localStorage.setItem("admin_user", JSON.stringify(response.data.user));
       setToken(response.data.access_token);
       setCurrentUser(response.data.user);
+      setActiveTab("overview");
+      setNotice("Logged in successfully");
+      await loadPublicData();
       await loadBookings();
     } catch (requestError) {
       setError("Login failed. Check credentials and backend.");

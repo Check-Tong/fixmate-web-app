@@ -265,7 +265,7 @@ class _TechnicianProfileSetupScreenState
                     onChanged: (value) {
                       setState(() => _isAvailable = value);
                     },
-                    thumbColor: MaterialStateProperty.all(AppTheme.primary),
+                    thumbColor: WidgetStateProperty.all(AppTheme.primary),
                   ),
                 ],
               ),

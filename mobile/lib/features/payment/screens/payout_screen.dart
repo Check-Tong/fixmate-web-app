@@ -25,11 +25,12 @@ class _PayoutScreenState extends ConsumerState<PayoutScreen> {
   Future<void> _loadStats() async {
     try {
       final stats = await ProfileRepository().getTechnicianStats();
-      if (mounted)
+      if (mounted) {
         setState(() {
           _stats = stats;
           _statsLoading = false;
         });
+      }
     } catch (_) {
       if (mounted) setState(() => _statsLoading = false);
     }
